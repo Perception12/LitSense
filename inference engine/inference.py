@@ -29,7 +29,7 @@ class BookInferenceEngine:
         globals.set_debug(True)
         
         
-    def extract_book_information(self, image_path:str):
+    def extract_book_information(self, image_path: str):
         input_prompt = get_prompt_from_template("prompts/extract_book_information_template.jinja")
         
         parser = JsonOutputParser(pydantic_object=BookInformation)
@@ -48,14 +48,14 @@ class BookInferenceEngine:
                     content=[
                         {"type": "text", "text": inputs["prompt"]},
                         {"type": "text", "text": parser.get_format_instructions()},
-                        {"type": "image_url", "image_url": {"url" f"data:image/jpeg;base64, {inputs['image']}"}}
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{inputs['image_base64']}"}}
                     ]
                 )
             ])
             
             return msg.content
         
-        vision_chain = load_image_chain | image_model | parser
+        vision_chain = load_image_chain() | image_model | parser
         
         return vision_chain.invoke({"image_path": image_path, "prompt": input_prompt})
     
