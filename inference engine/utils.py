@@ -15,7 +15,7 @@ def load_image(inputs: dict) -> dict:
 
     image_base64 = encode_image(image_path)
 
-    return {"image_base64": image_base64}
+    return {"image": image_base64}
 
 
 def load_image_chain() -> TransformChain:
@@ -23,7 +23,7 @@ def load_image_chain() -> TransformChain:
     
     return TransformChain(
         input_variables=["image_path"],
-        output_variables=["image_base64"],
+        output_variables=["image"],
         transform=load_image
     )
 
@@ -32,4 +32,4 @@ def get_prompt_from_template(template_path:str) -> str:
     """Load a prompt template from a file."""
     path = Path(template_path)
     content = path.read_text()
-    return Template(content).render()
+    return Template(content)
