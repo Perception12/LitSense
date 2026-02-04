@@ -1,4 +1,4 @@
-from inference_engine import BookInferenceEngine
+from engine import BookInferenceEngine
 from data_models import UserInfo
 
 engine = BookInferenceEngine()
