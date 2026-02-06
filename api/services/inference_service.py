@@ -2,13 +2,12 @@ import json
 import tempfile
 from inference_engine.engine import BookInferenceEngine
 from inference_engine.data_models import UserInfo
+from utils.file_utils import save_temp_image
 
 engine = BookInferenceEngine()
 
 def run_inference(image_file, user_info_json):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-        image_file.save(tmp.name)
-        image_path = tmp.name
+    image_path = save_temp_image(image_file)
     
     user_info_dict = json.loads(user_info_json)
     user_info = UserInfo(**user_info_dict)
