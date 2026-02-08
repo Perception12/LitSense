@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import chain
@@ -10,8 +11,9 @@ from inference_engine.data_models import BookInformation, InferenceResponse, Use
 class BookInferenceEngine:
     def __init__(self):
         _ = load_dotenv()
+        model_name = os.getenv("MODEL_NAME", "gpt-4.1-mini")
         self.llm = ChatOpenAI(
-                model="gpt-4o",
+                model=model_name,
                 temperature=0,
                 max_tokens=1024
             )
