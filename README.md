@@ -163,6 +163,7 @@ Environment variables are loaded securely using `.env` and `docker-compose`:
 
 ```env
 OPENAI_API_KEY=your_api_key_here
+MODEL_NAME=gpt-4.1-mini
 ```
 
 ---
@@ -210,5 +211,3 @@ The backend is now stable and ready for frontend integration. Suggested frontend
 ---
 
 If you have questions or want to extend the system (auth, persistence, analytics, etc.), this backend is designed to scale with you.
-
-
