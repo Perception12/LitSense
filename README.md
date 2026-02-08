@@ -47,7 +47,7 @@ LitSense/
 ├── inference_engine/
 │   ├── engine.py                # Core BookInferenceEngine
 │   ├── utils.py                 # Data transformation pipelines
-│   ├── data_models.py                 # Data transformation pipelines  
+│   ├── data_models.py           # Definition of custom pydantic classes  
 │   └── prompts/
 │       ├── extract_book_information.jinja
 │       └── preference_prompt.jinja
@@ -210,4 +210,5 @@ The backend is now stable and ready for frontend integration. Suggested frontend
 ---
 
 If you have questions or want to extend the system (auth, persistence, analytics, etc.), this backend is designed to scale with you.
+
 
