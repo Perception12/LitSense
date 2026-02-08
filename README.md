@@ -46,8 +46,8 @@ LitSense/
 │
 ├── inference_engine/
 │   ├── engine.py                # Core BookInferenceEngine
-│   ├── pipelines/               # Data transformation pipelines
-│   │   └── load_image.py
+│   ├── utils.py                 # Data transformation pipelines
+│   ├── data_models.py                 # Data transformation pipelines  
 │   └── prompts/
 │       ├── extract_book_information.jinja
 │       └── preference_prompt.jinja
@@ -61,7 +61,7 @@ LitSense/
 
 ---
 
-## 🔍 Inference Flow (High Level)
+## Inference Flow (High Level)
 
 1. Client sends a **POST** request with:
 
@@ -210,3 +210,4 @@ The backend is now stable and ready for frontend integration. Suggested frontend
 ---
 
 If you have questions or want to extend the system (auth, persistence, analytics, etc.), this backend is designed to scale with you.
+
