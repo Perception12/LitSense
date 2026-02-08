@@ -1,11 +1,10 @@
-import json
-from flask import Flask, request, jsonify
-from routes.inference import inference_bp
+from flask import Flask
+from api.routes.inference import inference_bp
 
 
 app = Flask(__name__)
 
-app.register_blueprint(inference_bp, url_prefix='/inference')
+app.register_blueprint(inference_bp, url_prefix='/api')
 
 
 if __name__ == '__main__':

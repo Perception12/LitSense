@@ -1,5 +1,5 @@
 import base64
-from langchain.chains import TransformChain
+from langchain_core.runnables import RunnableLambda
 from pathlib import Path
 from jinja2 import Template
 
@@ -15,21 +15,18 @@ def load_image(inputs: dict) -> dict:
 
     image_base64 = encode_image(image_path)
 
-    return {"image": image_base64}
+    return {**inputs, "image": image_base64}
 
 
-def load_image_chain() -> TransformChain:
-    """Create a TransformChain that loads and encodes an image."""
-    
-    return TransformChain(
-        input_variables=["image_path"],
-        output_variables=["image"],
-        transform=load_image
-    )
+def load_image_chain() -> RunnableLambda:
+    """Create a chain that loads an image and encodes it in base64 format."""
+    return RunnableLambda(load_image)
 
 
-def get_prompt_from_template(template_path:str) -> str:
+def get_prompt_from_template(template_name:str) -> str:
     """Load a prompt template from a file."""
-    path = Path(template_path)
-    content = path.read_text()
-    return Template(content)
+    base_path = Path(__file__).parent / "prompts"
+    full_path = base_path / template_name
+    if not full_path.exists():
+        raise FileNotFoundError(f"Prompt file not found: {full_path}")
+    return Template(full_path.read_text())
