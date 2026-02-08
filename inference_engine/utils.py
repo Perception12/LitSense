@@ -6,6 +6,9 @@ from jinja2 import Template
 def load_image(inputs: dict) -> dict:
     """Load an image from the given path and encode it in base64 format."""
     
+    if "image_path" not in inputs:
+        raise ValueError("load_image expects 'image_path' in inputs")
+    
     image_path = inputs.get("image_path")
     
     def encode_image(image_path: str) -> str:
