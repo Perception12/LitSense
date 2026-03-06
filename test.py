@@ -10,10 +10,7 @@ user_info = {
     "occupation": "Engineer",
     "location": "New York",
     "favorite_genres": ["Science Fiction", "Classics"],
-    "reading_history": [
-        {"title": "1984", "author": "George Orwell"},
-        {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"}
-    ]
+    "favorite_authors": [ "George Orwell", "F. Scott Fitzgerald", "Albert Einstein"]
 }
 
 with open("assets/book cover 2.jpg", "rb") as f:

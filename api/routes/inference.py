@@ -14,10 +14,8 @@ def analyze():
         user_info_json = request.form.get('user_info')
         if not user_info_json:
             return jsonify({"error": "Missing user info"}), 400
-        
+            
         result = run_inference(request.files['image'], user_info_json)
-        
-        
         
         return jsonify(result), 200
         

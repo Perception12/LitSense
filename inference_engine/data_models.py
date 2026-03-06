@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List
+from typing import Optional, List
 from pydantic.v1 import BaseModel, Field
 
 
@@ -6,7 +6,8 @@ class BookInformation(BaseModel):
     "Information about the book cover image."
     title: str = Field(..., description="The title of the book.")
     authors: List[str] = Field(..., description="List of authors of the book.")
-    genre: str = Field(..., description="The genre of the book.")
+    genres: List[str] = Field(default_factory=list, description="List of genres associated with the book.")
+    description: Optional[str] = Field(None, description="A brief description of the book.")
     confidence: float = Field(..., description="Model's confidence in the extracted information.", ge=0.0, le=1.0)
     
 class InferenceResponse(BaseModel):
@@ -22,6 +23,6 @@ class UserInfo(BaseModel):
     age: Optional[int] = Field(None, description="Age of the user.")
     occupation: Optional[str] = Field(None, description="Occupation of the user.")
     location: Optional[str] = Field(None, description="Location of the user.")
-    reading_history: List[Dict[str, str]] = Field(default_factory=list)
+    favorite_authors: List[str] = Field(default_factory=list) 
     favorite_genres: List[str] = Field(default_factory=list)
  

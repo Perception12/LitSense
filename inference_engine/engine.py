@@ -6,6 +6,7 @@ from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from inference_engine.utils import load_image_chain, get_prompt_from_template
 from inference_engine.data_models import BookInformation, InferenceResponse, UserInfo
+from inference_engine.metadata import get_book_metadata
 
 
 class BookInferenceEngine:
@@ -13,89 +14,108 @@ class BookInferenceEngine:
         _ = load_dotenv()
         model_name = os.getenv("MODEL_NAME", "gpt-4.1-mini")
         self.llm = ChatOpenAI(
-                model=model_name,
-                temperature=0,
-                max_tokens=1024
-            )
-            
-        
-        
-        
-    def extract_book_information(self, image_path:str):
-        input_prompt_template = get_prompt_from_template("extract_book_information_template.jinja")
+            model=model_name,
+            temperature=0,
+            max_tokens=1024
+        )
+        self.metadata_cache = {}
+
+    def extract_book_information(self, image_path: str):
+
+        input_prompt_template = get_prompt_from_template(
+            "extract_book_information_template.jinja")
         parser = JsonOutputParser(pydantic_object=BookInformation)
+
         input_prompt = input_prompt_template.render(
             format_instructions=parser.get_format_instructions()
         )
-        
-        if not input_prompt:
-            raise ValueError("Prompt template could not be rendered or is empty")
-        
+
         @chain
-        def image_model(inputs: dict) -> str | list[str]:
-            """Invoke model with image and prompt"""
-            
-            if "prompt" not in inputs:
-                raise ValueError("Missing 'prompt' in input dictionary")
-            
+        def image_model(inputs: dict):
+
             msg = self.llm.invoke([
                 HumanMessage(
                     content=[
                         {"type": "text", "text": inputs["prompt"]},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64, {inputs['image']}"}}
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{inputs['image']}"
+                            }
+                        }
                     ]
                 )
             ])
-            
+
             return msg.content
-        
-        
+
         vision_chain = load_image_chain() | image_model | parser
-        
-        return vision_chain.invoke({"image_path": image_path, "prompt": input_prompt})
-    
+
+        extracted_info = vision_chain.invoke({
+            "image_path": image_path,
+            "prompt": input_prompt
+        })
+
+        if not extracted_info['title'] or extracted_info['title'].strip() == "":
+            return extracted_info
+
+        if extracted_info['confidence'] > 0.5:
+
+            author = extracted_info['authors'][0] if extracted_info['authors'] else None
+
+            cache_key = f"{extracted_info['title']}_{author}".lower() if author else extracted_info['title'].lower()
+            metadata = None
+            
+            if cache_key in self.metadata_cache:
+                metadata = self.metadata_cache[cache_key]
+            else:
+                try:
+                    metadata = get_book_metadata(extracted_info['title'], author)
+                except Exception:
+                    metadata = None
+
+            if metadata:
+                extracted_info['genres'] = metadata.get("genres", [])
+                extracted_info['description'] = metadata.get(
+                    "description", "")
+                self.metadata_cache[cache_key] = metadata
+
+        return extracted_info
+
     def check_if_book_fits_preferences(self, book_info: BookInformation, user_info: UserInfo):
-        input_prompt_template = get_prompt_from_template("preference_prompt.jinja")
-        
+        input_prompt_template = get_prompt_from_template(
+            "preference_prompt.jinja")
+
         parser = JsonOutputParser(pydantic_object=InferenceResponse)
-        
+
         input_prompt = input_prompt_template.render(
             book_info=book_info,
             user_info=user_info,
             format_instructions=parser.get_format_instructions()
         )
-        
+
         if not input_prompt:
-            raise ValueError("Prompt template could not be rendered or is empty")
-        
+            raise ValueError(
+                "Prompt template could not be rendered or is empty")
+
         @chain
         def preference_model(inputs: dict) -> str | list[str]:
             """Invoke model with book info and user preferences"""
             if "prompt" not in inputs:
                 raise ValueError("Missing 'prompt' in input dictionary")
-            
+
             msg = self.llm.invoke([
                 HumanMessage(
-                    content=[
-                        {"type": "text", "text": inputs["prompt"]},
-                        {"type": "text", "text": f"Book Information: {inputs['book_info']}"},
-                        {"type": "text", "text": f"User Info: {inputs['user_info']}"}
-                    ]
+                    content=inputs["prompt"]
                 )
             ])
-            
+
             return msg.content
-        
+
         preference_chain = preference_model | parser
-        
+
         return preference_chain.invoke({
             "book_info": book_info,
             "user_info": user_info,
             "prompt": input_prompt
         })
-    
-            
-
-        
-        
-    

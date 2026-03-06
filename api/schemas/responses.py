@@ -4,8 +4,9 @@ from typing import List
 
 class BookInfoResponse(BaseModel):
     title: str
-    genre: str
+    genres: List[str]
     authors: List[str]
+    description: str = None
     
 
 class BookRecommendationResponse(BaseModel):
